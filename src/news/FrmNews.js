@@ -7,7 +7,7 @@ import noImg from '../assets/noPhoto.jpg';
 import Loading from '../components/loading/MyLoading';
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css';
-import { addData, addDataSuccess, fetchDataDetail } from './newsService';
+import { addData, addDataSuccess, fetchDataDetail, postData } from './newsService';
 import { AppSwalSuccess } from '../components/modal/SwalSuccess';
 
 class FrmNews extends Component {
@@ -43,18 +43,40 @@ class FrmNews extends Component {
 
     componentDidMount() {
         const selectedId = sessionStorage.getItem('idNewsMekar');
-        if (selectedId > 0) {       
-            this.getData();            
+        if (selectedId > 0) {
+            this.getData();
         }
         this.setState({ id_operator: this.props.user.id_operator });
-    }    
+    }
 
     getData = async () => {
+        this.setState({ ...this.state, appsLoading: true });
         const selectedId = sessionStorage.getItem('idNewsMekar');
         const param = { id_news: selectedId }
-        await this.props.onLoad(param);
-        this.setState({ isEdit: true, imgUpload: this.props.data.img, id_news: selectedId });
-        this.setState(this.props.data);       
+        postData(param, 'VIEW_DETAIL')
+            .then(response => {
+                setTimeout(() => {
+                    if (response.data.err_code === "00") {
+                        const dtRes = response.data.data;
+                        Object.keys(this.initialState).map((key) => {
+                            this.setState({ ...this.state, [key]: dtRes[key] });
+                            this.setState({ ...this.state, imgUpload: dtRes.img });
+                            this.setState({ ...this.state, img: '' });
+                            this.setState({ ...this.state, appsLoading: false });
+                            return 1;
+                        });
+                    }
+
+                    if (response.data.err_code === "04") {
+                        this.setState({ ...this.state });
+                    }
+                    this.setState({ ...this.state, appsLoading: false });
+                }, 200);
+            })
+            .catch(e => {
+                console.log(e);
+                this.setState({ ...this.state, appsLoading: false });
+            });
     }
 
     handleChange(evt) {
@@ -162,7 +184,7 @@ class FrmNews extends Component {
                         <div className="container-fluid">
                             <div className="row">
                                 <div className="col-12">
-                                    {this.props.isLoading ? (<Loading />) :
+                                    {this.state.appsLoading ? (<Loading />) :
                                         (
                                             <div className="card shadow-lg">
                                                 <Form>
@@ -294,7 +316,7 @@ class FrmNews extends Component {
 }
 
 const mapStateToProps = (state) => {
-    
+
     return {
         data: state.news.dataEdit || {},
         isLoading: state.news.isLoading,

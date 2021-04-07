@@ -17,6 +17,7 @@ const News = React.lazy(() => import('./news/News'));
 const FrmNews = React.lazy(() => import('./news/FrmNews'));
 const Members = React.lazy(() => import('./members/Members'));
 const Satgas = React.lazy(() => import('./members/Satgas'));
+const Setting = React.lazy(() => import('./setting/Setting'));
 // const getBasename = () => {
 //   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
 // }
@@ -35,10 +36,13 @@ class App extends Component {
             <Main>
               <React.Suspense fallback={<PageLoading />}>
                 <Route exact path="/banners" component={Banner} />
+                <Route exact path="/" component={Banner} />
+                
                 <Route exact path="/news" component={News} />
                 <Route exact path="/add_news" component={FrmNews} />
                 <Route exact path="/members" component={Members} />
                 <Route exact path="/satgas" component={Satgas} />
+                <Route exact path="/setting" component={Setting} />
               </React.Suspense>
             </Main>
           </ProtectedRoute>

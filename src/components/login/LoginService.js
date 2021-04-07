@@ -12,8 +12,7 @@ export const loginAdmin = async (username, pass) => {
     };
     let token = '';
     await axios.post(API_URL + '/login_admin', param).then(res => {
-        const response = res.data;
-        console.log(response);
+        const response = res.data;        
         if (response.err_code === '00') {
             let data = response.data;
             let id_admin = data.id_operator;

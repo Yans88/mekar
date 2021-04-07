@@ -113,7 +113,7 @@ export const fetchDataDetail = (param) => {
 
 export const addForm = (dt) => {
     const data = {};
-   
+
     data['showFormAdd'] = dt;
     data['isAddLoading'] = false;
     return {
@@ -124,7 +124,7 @@ export const addForm = (dt) => {
 
 export const showConfirmDel = (dt) => {
     const data = {};
-   
+
     data['showFormDelete'] = dt;
     data['isAddLoading'] = false;
     return {
@@ -144,7 +144,7 @@ export const addData = (param) => {
         dispatch(fetchAddDataLoading(isLoading));
         await axios.post(API_URL + "/add_news", form)
             .then(response => {
-                const err_code = response.data.err_code;                
+                const err_code = response.data.err_code;
                 if (err_code === '00') {
                     dispatch(addForm(false));
                     _data['showFormSuccess'] = true;
@@ -210,4 +210,13 @@ export const deleteData = (param) => {
             })
     }
 
+}
+
+export const postData = (param, action) => {
+    switch (action) {
+        case "VIEW_DETAIL":
+            return axios.post(API_URL + "/detail_news", param)
+        default:
+            return axios.post(API_URL + "/detail_news", param)
+    }
 }

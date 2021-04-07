@@ -144,7 +144,7 @@ const MenuSidebar = ({ menuCollapse }) => {
                             <li className="nav-item">
 
                                 <NavLink
-                                    to='/products'
+                                    to='/setting'
                                     className="nav-link">
                                     <BsGearFill className="nav-icon" />
                                     <p>Setting</p>

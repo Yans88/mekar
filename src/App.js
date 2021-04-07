@@ -17,14 +17,15 @@ const News = React.lazy(() => import('./news/News'));
 const FrmNews = React.lazy(() => import('./news/FrmNews'));
 const Members = React.lazy(() => import('./members/Members'));
 const Satgas = React.lazy(() => import('./members/Satgas'));
-const getBasename = () => {
-  return `/${process.env.PUBLIC_URL.split('/').pop()}`;
-}
+// const getBasename = () => {
+//   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
+// }
+const getBasename = path => path.substr(0, path.lastIndexOf('/'));
 
 class App extends Component {
   render() {
     return (
-      <Router basename={getBasename()}>
+      <Router basename={getBasename(window.location.pathname)}>
         <Switch>
           <PublicRoute exact path="/login">
             <Login />

@@ -26,7 +26,8 @@
     "redux-thunk": "^2.3.0",
     "suneditor-react": "^2.16.2",
     "web-vitals": "^1.1.1",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "moment": "^2.29.1"
   },
   "scripts": {
     "start": "react-scripts start",

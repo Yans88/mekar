@@ -31,9 +31,9 @@ class News extends Component {
         this.props.onLoad(this.state);
     }
 
-    editRecord = async (record) => {        
+    editRecord = async (record) => {
         await sessionStorage.setItem('idNewsMekar', record.id_news);
-        this.props.history.push('/add_news');        
+        this.props.history.push('/add_news');
     }
 
     deleteRecord = (record) => {
@@ -122,7 +122,7 @@ class News extends Component {
             {
                 key: "action",
                 text: "Action",
-                width: 170,
+                width: 70,
                 align: "center",
                 sortable: false,
                 cell: record => {
@@ -132,7 +132,7 @@ class News extends Component {
                                 <button
                                     className="btn btn-xs btn-success"
                                     onClick={e => this.editRecord(record)}
-                                    style={{ marginRight: '5px' }}>
+                                    style={{ marginBottom: '3px', width: '58px' }}>
                                     <i className="fa fa-edit"></i> Edit
                             </button>
                                 <button

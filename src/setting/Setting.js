@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Col, Form } from 'react-bootstrap';
+import { Alert, Col, Form } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import AppButton from '../components/button/Button';
 import Loading from '../components/loading/MyLoading';
@@ -11,7 +11,9 @@ import { fetchData, addData, chgProps, addDataSuccess } from './settingService';
 class Setting extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            errMsg: { email: '' },
+        };
     }
 
     componentDidMount() {
@@ -19,6 +21,7 @@ class Setting extends Component {
     }
 
     handleChange(evt) {
+        this.setState({ errMsg: { email: '' } });
         const name = evt.target.name;
         var value = evt.target.value;
         const dt = {};
@@ -35,16 +38,40 @@ class Setting extends Component {
     }
 
     handleSubmit() {
-        this.props.onAdd(this.props.data);
+        var errors = this.state.errMsg;
+        var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+        //console.log(this.props.data.send_mail);
+        if (this.props.data.send_mail) {
+            if (!pattern.test(this.props.data.send_mail)) {
+                errors.email = "Please enter valid email address";
+            }
+        }
+
+        this.setState({ errors });
+        if (this.validateForm(this.state.errMsg)) {
+            this.props.onAdd(this.props.data);
+        } else {
+            console.error('Invalid Form')
+        }
 
     }
+
+    validateForm(errors) {
+
+        let valid = true;
+        Object.values(errors).forEach(
+            (val) => val.length > 0 && (valid = false)
+        );
+        return valid;
+    }
+
     closeSwal() {
         this.props.closeSwal();
     }
 
     render() {
         const { data } = this.props;
-
+        const { errMsg } = this.state;
         return (
 
             <div>
@@ -71,6 +98,9 @@ class Setting extends Component {
                                                     <div className="card-body my-card-body">
                                                         <Form.Row>
                                                             <Form.Group as={Col} xs={6} controlId="send_mail">
+                                                                {errMsg.email ?
+                                                                    (<span className="float-right text-error badge badge-danger">{errMsg.email}
+                                                                    </span>) : ''}
                                                                 <Form.Label>Email</Form.Label>
                                                                 <Form.Control
                                                                     value={data.send_mail}
@@ -157,7 +187,9 @@ class Setting extends Component {
                                                     </div>
 
                                                 </Form>
-                                                <div className="card-footer">                                                   
+                                                <div className="card-footer">
+                                                    {errMsg.email ?
+                                                        (<Alert variant="danger" show={true}>Error : {errMsg.email}</Alert>) : ''}
                                                     <AppButton
                                                         onClick={this.handleSubmit.bind(this)}
                                                         isLoading={this.props.isAddLoading}
@@ -165,6 +197,7 @@ class Setting extends Component {
                                                         theme="success">
                                                         Update Data
                                                 </AppButton>
+
                                                 </div>
                                             </div>
                                         )}

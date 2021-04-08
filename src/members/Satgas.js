@@ -199,9 +199,9 @@ class Members extends Component {
                 width: 250,
                 cell: record => {
                     return (<Fragment>
-                        <b>- Asal BPD :</b> {record.asal_bpd} <br />
-                        <b>- Gereja Lokal :</b> {record.gereja_lokal}<br />
-                        <b>- Gembala :</b> {record.gembala}
+                        <b>Asal BPD :</b> {record.asal_bpd} <br />
+                        <b>Gereja Lokal :</b> {record.gereja_lokal}<br />
+                        <b>Gembala :</b> {record.gembala}
                     </Fragment>)
                 }
             },

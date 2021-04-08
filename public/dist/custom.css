@@ -113,6 +113,16 @@ body{
 .text-sm .btn {
   font-size: 12px !important;
 }
+.text-sm .nav-custom {
+  padding: .5rem 1rem !important;
+  font-weight: bold;
+  font-size: 1.06em !important;
+}
+
+.nav-sidebar .nav-item>.nav-link {
+  margin-bottom: .5rem;
+}
+
 .btn-xs {
   padding: .125rem .25rem !important;
   font-size: .75rem !important;

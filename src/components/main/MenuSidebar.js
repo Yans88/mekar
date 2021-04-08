@@ -70,60 +70,54 @@ const MenuSidebar = ({ menuCollapse }) => {
 
                             <li className="nav-item">
                                 <NavLink
-                                    to='/banners'
-                                    className="nav-link">
+                                exact={true}
+                                    to='/'
+                                    className="nav-link nav-custom">
                                     <BsFillImageFill className="nav-icon" />
                                     <p>Banners</p>
                                 </NavLink>
-
                             </li>
+                            
                             <li className="nav-item">
-
                                 <NavLink
                                     to='/news'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <FaGripHorizontal className="nav-icon" />
                                     <p>News</p>
                                 </NavLink>
-
                             </li>
-                            <li className="nav-item">
 
+                            <li className="nav-item">
                                 <NavLink
                                     to='/members'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <BsFillPersonDashFill className="nav-icon" />
                                     <p>Members</p>
                                 </NavLink>
-
                             </li>
 
                             <li className="nav-item">
-
                                 <NavLink
                                     to='/satgas'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <BsFillPersonCheckFill className="nav-icon" />
                                     <p>Satgas</p>
                                 </NavLink>
-
                             </li>
-                            <li className="nav-item">
 
+                            <li className="nav-item">
                                 <NavLink
-                                    to='/products'
-                                    className="nav-link">
+                                    to='/pengaduan'
+                                    className="nav-link nav-custom">
                                     <BsCardList className="nav-icon" />
                                     <p>Pengaduan</p>
                                 </NavLink>
-
                             </li>
 
                             <li className="nav-item">
-
                                 <NavLink
                                     to='/products'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <FaList className="nav-icon" />
                                     <p>Master Kasus</p>
                                 </NavLink>
@@ -131,28 +125,22 @@ const MenuSidebar = ({ menuCollapse }) => {
                             </li>
 
                             <li className="nav-item">
-
                                 <NavLink
                                     to='/products'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <BsFillPersonLinesFill className="nav-icon" />
                                     <p>Users</p>
                                 </NavLink>
-
                             </li>
 
                             <li className="nav-item">
-
                                 <NavLink
                                     to='/setting'
-                                    className="nav-link">
+                                    className="nav-link nav-custom">
                                     <BsGearFill className="nav-icon" />
                                     <p>Setting</p>
                                 </NavLink>
-
                             </li>
-
-
                         </ul>
                     </nav>
 

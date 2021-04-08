@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux';
-import { fetchData } from './membersService';
-import { Figure } from 'react-bootstrap';
+import { fetchData } from './pengaduanService';
 import ReactDatatable from '@ashvin27/react-datatable';
-import noImg from '../assets/noPhoto.jpg';
+import moment from 'moment';
+import "moment/locale/id";
 
-class Members extends Component {
+class Pengaduan extends Component {
     constructor(props) {
         super(props);
-
         this.state = {
-            sort_order: "ASC",
-            sort_column: "nama",
+            sort_order: "DESC",
+            sort_column: "id",
             type: 1,
             keyword: '',
             page_number: 1,
             per_page: 10,
+            cms: 1,
             loadingForm: false,
         }
     }
@@ -48,7 +48,14 @@ class Members extends Component {
 
     render() {
         const { data } = this.props;
-
+        const statusNikah = {};
+        statusNikah[1] = "Belum menikah";
+        statusNikah[2] = "Menikah";
+        statusNikah[3] = "Cerai";
+        const bersediaDihubungi = {};
+        bersediaDihubungi[0] = "-";
+        bersediaDihubungi[1] = "Ya";
+        bersediaDihubungi[2] = "Tidak";
         const columns = [
             {
                 key: "no",
@@ -60,64 +67,54 @@ class Members extends Component {
                 row: 0
             },
             {
-                key: "nama",
-                text: "Nama",
-                width: 200,
+                key: "nama_pelapor",
+                text: "Pelapor",
+                width: 190,
                 align: "center",
-                sortable: true
-            },
-            {
-                key: "email",
-                text: "Contact",
-                align: "center",
-
                 sortable: true,
                 cell: record => {
                     return (<Fragment>
-                        {record.email} <br />
-                        <b>Phone :</b> {record.phone}
+                        {record.nama_pelapor} <br />
+                        <b>Tanggal :</b> {moment(new Date(record.created_at)).format('DD-MM-YYYY HH:mm')}
+
                     </Fragment>)
                 }
             },
             {
-                key: "asal_bpd",
-                text: "Info",
+                key: "nama_lengkap",
+                text: "Info Laporan",
                 align: "center",
-                sortable: false,
-                width: 250,
                 cell: record => {
                     return (<Fragment>
-                        <b>Asal BPD :</b> {record.asal_bpd} <br />
-                        <b>Gereja Lokal :</b> {record.gereja_lokal}<br />
-                        <b>Gembala :</b> {record.gembala}
+                        <b>Nama Lengkap :</b> {record.nama_lengkap} <br />
+                        <b>Tanggal Lahir :</b> {moment(new Date(record.dob)).format('DD-MM-YYYY')}<br />
+                        <b>Jenis Kelamin :</b> {record.gender === 1 ? "Pria" : "Perempuan"}, {statusNikah[record.status_nikah]}
                     </Fragment>)
                 }
             },
             {
-                key: "photo",
-                text: "Photo",
+                key: "no_hp",
+                text: "Contact",
                 align: "center",
                 sortable: false,
-                width: 180,
                 cell: record => {
-                    return (
-                        <div style={{ textAlign: "center" }}>
-                            <Figure style={{ marginTop: ".3rem", marginBottom: 0 }}>
-                                <Figure.Image
-                                    thumbnail
-                                    width={150}
-                                    height={120}
-                                    src={record.photo ? record.photo : noImg}
-                                />
-
-                            </Figure></div>
-                    )
+                    return (<Fragment>
+                        <b>Phone :</b> {record.no_hp} <br />
+                        <b>Gereja Lokal :</b> {record.gereja_lokal ? record.gereja_lokal : '-'}<br />
+                        <b>Bersedia dihubungi :</b>{bersediaDihubungi[record.bersedia_dihubungi]}
+                    </Fragment>)
                 }
-            }
+            },
+            {
+                key: "jenis_kasus",
+                text: "Jenis Kasus",
+                align: "center",
+                sortable: true
+            },
 
         ];
         const config = {
-            key_column: 'id_member',
+            key_column: 'id',
             page_size: 10,
             length_menu: [10, 20, 50],
             show_filter: true,
@@ -140,7 +137,7 @@ class Members extends Component {
                         <div className="container-fluid">
                             <div className="row mb-2">
                                 <div className="col-sm-6">
-                                    <h1 className="m-0">Members</h1>
+                                    <h1 className="m-0">Pengaduan</h1>
                                 </div>{/* /.col */}
 
                             </div>{/* /.row */}
@@ -154,8 +151,6 @@ class Members extends Component {
                                 <div className="col-12">
                                     {/* card start */}
                                     <div className="card card-success shadow-lg" style={{ "minHeight": "470px" }}>
-
-
                                         <div className="card-body">
                                             {data ? (
                                                 <ReactDatatable
@@ -190,10 +185,10 @@ class Members extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        data: state.members.data || [],
-        isLoading: state.members.isLoading,
-        error: state.members.error || null,
-        totalData: state.members.totalData || 0,
+        data: state.pengaduan.data || [],
+        isLoading: state.pengaduan.isLoading,
+        error: state.pengaduan.error || null,
+        totalData: state.pengaduan.totalData || 0,
         user: state.auth.currentUser
     }
 }
@@ -207,4 +202,4 @@ const mapDispatchToPros = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToPros)(Members);
+export default connect(mapStateToProps, mapDispatchToPros)(Pengaduan);

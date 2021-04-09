@@ -4,10 +4,10 @@ import {
     ADD_DATA_LOADING,
     ADD_DATA_SUCCESS,
     ADD_DATA_ERROR,
+    CLEAR_ADD_DATA_ERROR,
     FETCH_DATA_LOADING,
-    FETCH_DATA_ADMIN,
-    FETCH_DATA_ERROR,
-    CLEAR_ADD_DATA_ERROR
+    FETCH_DATA_MKASUS,
+    FETCH_DATA_ERROR
 } from './types';
 
 const defaultState = {
@@ -24,9 +24,9 @@ const defaultState = {
     tipeSWAL: "success"
 }
 
-const adminReducer = (state = defaultState, action) => {
+const mKasusReducer = (state = defaultState, action) => {
     switch (action.type) {
-        case FETCH_DATA_ADMIN:
+        case FETCH_DATA_MKASUS:
             return { ...state, data: action.payload.data, totalData: action.payload.total_data }
         case FETCH_DATA_LOADING:
             return { ...state, isLoading: action.payload }
@@ -50,6 +50,8 @@ const adminReducer = (state = defaultState, action) => {
             return { ...state, error: action.payload }
         case ADD_DATA_ERROR:
             return { ...state, errorPriority: action.payload }
+        case CLEAR_ADD_DATA_ERROR:
+            return { ...state, errorPriority: null, isAddLoading: false }
         case ADD_DATA_SUCCESS:
             return {
                 ...state,
@@ -57,11 +59,9 @@ const adminReducer = (state = defaultState, action) => {
                 showFormSuccess: action.payload.showFormSuccess,
                 contentMsg: action.payload.contentMsg
             }
-        case CLEAR_ADD_DATA_ERROR:
-            return { ...state, errorPriority: null, isAddLoading: false }
         default:
             return state
     }
 }
 
-export default adminReducer;
+export default mKasusReducer;

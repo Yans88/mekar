@@ -54,7 +54,7 @@ const bannerReducer = (state = defaultState, action) => {
             return { ...state, errorPriority: null, isAddLoading: false }
         case ADD_DATA_SUCCESS:
             return {
-                ...state,
+                ...state,                
                 tipeSWAL: action.payload.tipeSWAL,
                 showFormSuccess: action.payload.showFormSuccess,
                 contentMsg: action.payload.contentMsg

@@ -1,39 +1,43 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux';
-import { fetchData, addDataSuccess, showConfirmDel, deleteData } from './newsService';
-import { Button, Figure } from 'react-bootstrap';
+import { fetchData, addData, addForm, addDataSuccess, showConfirmDel, deleteData, clearAddDataError } from './masterKasusService';
+import { Button, Form, Col } from 'react-bootstrap';
 import AppModal from '../components/modal/MyModal';
 import { AppSwalSuccess } from '../components/modal/SwalSuccess';
 import ReactDatatable from '@ashvin27/react-datatable';
-import { Link } from 'react-router-dom';
 
 
-class News extends Component {
+class MasterKasus extends Component {
     constructor(props) {
         super(props);
         this.initSelected = {
-            id_news: '',
+            id_kasus: '',
+            kasus: '',
             id_operator: ''
         }
         this.state = {
             sort_order: "ASC",
-            sort_column: "id_news",
+            sort_column: "kasus",
             keyword: '',
             page_number: 1,
             per_page: 10,
             selected: this.initSelected,
+            errMsg: this.initSelected,
             loadingForm: false,
         }
     }
 
     componentDidMount() {
-        sessionStorage.removeItem('idNewsMekar');
         this.props.onLoad(this.state);
     }
 
-    editRecord = async (record) => {
-        await sessionStorage.setItem('idNewsMekar', record.id_news);
-        this.props.history.push('/add_news');
+    editRecord = (record) => {
+        this.setState({
+            errMsg: this.initSelected,
+            loadingForm: false,
+            selected: { ...record, id_operator: this.props.user.id_operator }
+        });
+        this.props.showForm(true);
     }
 
     deleteRecord = (record) => {
@@ -45,8 +49,11 @@ class News extends Component {
 
     handleClose = () => {
         this.setState({
-            selected: {}
+            errMsg: {},
+            selected: this.initSelected,
+            loadingForm: false
         });
+        this.props.showForm(false);
         this.props.showConfirmDel(false);
     };
 
@@ -71,10 +78,52 @@ class News extends Component {
         this.props.onLoad(this.state);
     }
 
+    handleChange(event) {
+        const { name, value } = event.target
+        var val = value;
+        this.props.clearErrProps();
+        this.setState({
+            loadingForm: false,
+            errMsg: { ...this.state.errMsg, [name]: "" },
+            selected: {
+                ...this.state.selected,
+                [name]: val
+            }
+        });
+        if (!this.state.selected.id_operator) this.setState({ selected: { ...this.state.selected, id_operator: this.props.user.id_operator } });
+    }
+
     discardChanges = () => {
         this.setState({ errMsg: {}, selected: this.initSelected, loadingForm: false });
         if (!this.state.selected.id_operator) this.setState({ selected: { ...this.state.selected, id_operator: this.props.user.id_operator } });
         this.props.showForm(true);
+    }
+
+    handleSubmit() {
+        var errors = this.state.errMsg;
+        this.setState({
+            ...this.state,
+            loadingForm: true,
+        });
+
+        errors.kasus = !this.state.selected.kasus ? "Jenis Kasus required" : '';
+
+        if (!this.state.selected.id_operator) this.setState({ selected: { ...this.state.selected, id_operator: this.props.user.id_operator } });
+        this.setState({ errors });
+        if (this.validateForm(this.state.errMsg)) {
+            this.props.onAdd(this.state.selected);
+        } else {
+            console.error('Invalid Form')
+        }
+
+    }
+
+    validateForm(errors) {
+        let valid = true;
+        Object.values(errors).forEach(
+            (val) => val.length > 0 && (valid = false)
+        );
+        return valid;
     }
 
     handleDelete() {
@@ -83,6 +132,7 @@ class News extends Component {
 
     render() {
         const { data } = this.props;
+        const { selected, errMsg } = this.state;
         const columns = [
             {
                 key: "no",
@@ -94,35 +144,15 @@ class News extends Component {
                 row: 0
             },
             {
-                key: "title",
-                text: "Title",
+                key: "kasus",
+                text: "Jenis Kasus",
                 align: "center",
                 sortable: true
             },
             {
-                key: "img",
-                text: "Image",
-                align: "center",
-                sortable: false,
-                cell: record => {
-                    return (
-                        <div style={{ textAlign: "center" }}>
-                            <Figure style={{ marginTop: ".3rem", marginBottom: 0 }}>
-                                <Figure.Image
-                                    thumbnail
-                                    width={150}
-                                    height={120}
-                                    src={record.img}
-                                />
-
-                            </Figure></div>
-                    )
-                }
-            },
-            {
                 key: "action",
                 text: "Action",
-                width: 70,
+                width: 140,
                 align: "center",
                 sortable: false,
                 cell: record => {
@@ -132,7 +162,7 @@ class News extends Component {
                                 <button
                                     className="btn btn-xs btn-success"
                                     onClick={e => this.editRecord(record)}
-                                    style={{ marginBottom: '3px', width: '58px' }}>
+                                    style={{ marginRight: '5px' }}>
                                     <i className="fa fa-edit"></i> Edit
                                 </button>
                                 <button
@@ -147,7 +177,7 @@ class News extends Component {
             }
         ];
         const config = {
-            key_column: 'id_news',
+            key_column: 'id_kasus',
             page_size: 10,
             length_menu: [10, 20, 50],
             show_filter: true,
@@ -161,17 +191,40 @@ class News extends Component {
                 loading_text: "Please be patient while data loads..."
             }
         }
+        const frmUser = <Form id="myForm">            
+            <Form.Row>
+                <Form.Group as={Col} xs={12} controlId="kasus">
+                    <Form.Label>Jenis Kasus</Form.Label>
 
+                    {errMsg.kasus ?
+                        (<span className="float-right text-error badge badge-danger">{errMsg.kasus}
+                        </span>) : ''}
+                    <Form.Control
+                        size="sm"
+                        autoComplete="off"
+                        name="kasus"
+                        type="text"
+                        value={selected.kasus}
+                        onChange={this.handleChange.bind(this)}
+                        placeholder="Jenis Kasus" />
+                </Form.Group>
+
+            </Form.Row>
+
+
+        </Form>;
         const contentDelete = <div dangerouslySetInnerHTML={{ __html: '<div id="caption" style=padding-bottom:20px;">Apakah anda yakin <br/>akan menghapus data ini ?</div>' }} />;
+        
         return (
             <div>
+
                 <div className="content-wrapper">
                     {/* Content Header (Page header) */}
                     <div className="content-header">
                         <div className="container-fluid">
                             <div className="row mb-2">
                                 <div className="col-sm-6">
-                                    <h1 className="m-0">News</h1>
+                                    <h1 className="m-0">Master Data Kasus</h1>
                                 </div>{/* /.col */}
 
                             </div>{/* /.row */}
@@ -186,8 +239,8 @@ class News extends Component {
                                     {/* card start */}
                                     <div className="card card-success shadow-lg" style={{ "minHeight": "470px" }}>
                                         <div className="card-header">
-                                            <Link to="/add_news"><Button variant="success"><i className="fa fa-plus"></i> Add</Button>
-                                            </Link>
+                                            <Button variant="success" onClick={this.discardChanges}><i className="fa fa-plus"></i> Add</Button>
+
                                         </div>
 
                                         <div className="card-body">
@@ -210,7 +263,19 @@ class News extends Component {
                             </div>
                         </div>
                     </section>
-
+                    <AppModal
+                        size="sm"
+                        show={this.props.showFormAdd}
+                        form={frmUser}
+                        backdrop="static"
+                        keyboard={false}
+                        title="Add/Edit"
+                        titleButton="Save change"
+                        themeButton="success"
+                        handleClose={this.handleClose}
+                        isLoading={this.props.isAddLoading ? this.props.isAddLoading : this.state.loadingForm}
+                        formSubmit={this.handleSubmit.bind(this)}
+                    ></AppModal>
                     {this.props.showFormSuccess ? (<AppSwalSuccess
                         show={this.props.showFormSuccess}
                         title={this.props.contentMsg}
@@ -222,11 +287,11 @@ class News extends Component {
                         show={this.props.showFormDelete}
                         size="sm"
                         form={contentDelete}
-                        handleClose={this.handleClose}
+                        handleClose={this.handleClose.bind(this)}
                         backdrop="static"
                         keyboard={false}
-                        title="Delete News"
-                        titleButton="Delete News"
+                        title="Delete"
+                        titleButton="Delete"
                         themeButton="danger"
                         isLoading={this.props.isAddLoading}
                         formSubmit={this.handleDelete.bind(this)}
@@ -237,22 +302,24 @@ class News extends Component {
 
                 </div>
 
-            </div>
+            </div >
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        data: state.news.data || [],
-        isLoading: state.news.isLoading,
-        isAddLoading: state.news.isAddLoading,
-        error: state.news.error || null,
-        totalData: state.news.totalData || 0,
-        contentMsg: state.news.contentMsg,
-        showFormSuccess: state.news.showFormSuccess,
-        showFormDelete: state.news.showFormDelete,
-        tipeSWAL: state.news.tipeSWAL,
+        data: state.masterKasus.data || [],
+        isLoading: state.masterKasus.isLoading,
+        isAddLoading: state.masterKasus.isAddLoading,
+        error: state.masterKasus.error || null,
+        errorPriority: state.masterKasus.errorPriority || null,
+        totalData: state.masterKasus.totalData || 0,
+        showFormAdd: state.masterKasus.showFormAdd,
+        contentMsg: state.masterKasus.contentMsg,
+        showFormSuccess: state.masterKasus.showFormSuccess,
+        showFormDelete: state.masterKasus.showFormDelete,
+        tipeSWAL: state.masterKasus.tipeSWAL,
         user: state.auth.currentUser
     }
 }
@@ -262,8 +329,14 @@ const mapDispatchToPros = (dispatch) => {
         onLoad: (queryString) => {
             dispatch(fetchData(queryString));
         },
+        onAdd: (data) => {
+            dispatch(addData(data));
+        },
         onDelete: (data) => {
             dispatch(deleteData(data));
+        },
+        showForm: (data) => {
+            dispatch(addForm(data));
         },
         showConfirmDel: (data) => {
             dispatch(showConfirmDel(data));
@@ -275,12 +348,16 @@ const mapDispatchToPros = (dispatch) => {
             dispatch(addDataSuccess(_data));
             const queryString = {
                 sort_order: "ASC",
-                sort_column: "id_news",
+                sort_column: "kasus",
                 per_page: 10,
+                type: 2
             }
             dispatch(fetchData(queryString));
+        },
+        clearErrProps: () => {
+            dispatch(clearAddDataError());
         }
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToPros)(News);
+export default connect(mapStateToProps, mapDispatchToPros)(MasterKasus);

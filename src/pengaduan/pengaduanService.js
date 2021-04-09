@@ -1,12 +1,12 @@
 import axios from 'axios';
 import {
-    ADD_DATA_LOADING,
-    ADD_DATA_SUCCESS,
-    ADD_DATA_ERROR,
-    CLEAR_ADD_DATA_ERROR,
+    CONFIRM_LOADING,
     FETCH_DATA_LOADING,
     FETCH_DATA_PENGADUAN,
-    FETCH_DATA_ERROR
+    FETCH_DATA_ERROR,
+    SHOW_CONFIRM_ONPROGRESS,
+    CONFIRM_ONPROGRESS_SUCCESS,
+    SHOW_CONFIRM_COMPLETE
 } from '../store/reducers/types';
 
 const API_URL = process.env.REACT_APP_URL_API;
@@ -25,9 +25,9 @@ export const fetchDataLoading = (data) => {
     }
 }
 
-export const fetchAddDataLoading = (data) => {
+export const fetchConfirmLoading = (data) => {
     return {
-        type: ADD_DATA_LOADING,
+        type: CONFIRM_LOADING,
         payload: data
     }
 }
@@ -39,23 +39,29 @@ export const fetchDataError = (data) => {
     }
 }
 
-export const addDataError = (data) => {
+export const showConfirmOnprogress = (dt) => {
+    const data = {};
+    data['showConfirmProgress'] = dt;
+    data['isAddLoading'] = false;
     return {
-        type: ADD_DATA_ERROR,
+        type: SHOW_CONFIRM_ONPROGRESS,
         payload: data
     }
 }
 
-export const clearAddDataError = (data)=>{
+export const showConfirmCompleted = (dt) => {
+    const data = {};
+    data['showConfirmComplete'] = dt;
+    data['isAddLoading'] = false;
     return {
-        type: CLEAR_ADD_DATA_ERROR,
+        type: SHOW_CONFIRM_COMPLETE,
         payload: data
     }
 }
 
-export const addDataSuccess = (data) => {
+export const confirmSuccess = (data) => {
     return {
-        type: ADD_DATA_SUCCESS,
+        type: CONFIRM_ONPROGRESS_SUCCESS,
         payload: data
     }
 }
@@ -81,4 +87,33 @@ export const fetchData = (param) => {
                 dispatch(fetchDataLoading(isLoading));
             })
     }
+}
+
+export const updStatus = (param) => {
+    let isLoading = true;
+    return async (dispatch) => {
+        dispatch(fetchConfirmLoading(isLoading));
+        const _data = {};
+        await axios.post(API_URL + "/upd_status_pengaduan", param)
+            .then(response => {
+                dispatch(showConfirmCompleted(false));
+                dispatch(showConfirmOnprogress(false));
+                _data['showFormSuccess'] = true;
+                _data['tipeSWAL'] = "success";
+                _data['contentMsg'] = <div dangerouslySetInnerHTML={{ __html: '<div style="font-size:20px; text-align:center;"><strong>Success</strong>, Data berhasil diupdate</div>' }} />;
+                dispatch(confirmSuccess(_data));
+
+            }).catch(error => {
+                console.log(error);
+                dispatch(showConfirmOnprogress(false));
+                dispatch(showConfirmCompleted(false));
+                isLoading = false;
+                _data['showFormSuccess'] = true;
+                _data['tipeSWAL'] = "error";
+                _data['contentMsg'] = <div dangerouslySetInnerHTML={{ __html: '<div style="font-size:20px; text-align:center;"><strong>Failed</strong>, Something wrong</div>' }} />;
+                dispatch(confirmSuccess(_data));
+                dispatch(fetchConfirmLoading(isLoading));
+            })
+    }
+
 }

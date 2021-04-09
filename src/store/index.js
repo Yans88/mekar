@@ -5,6 +5,8 @@ import newsReducer from './reducers/newsReducer';
 import membersReducer from './reducers/membersReducer';
 import settingReducer from './reducers/settingReducer';
 import pengaduanReducer from './reducers/pengaduanReducer';
+import masterKasus from './reducers/mKasusReducer';
+import adminReducer from './reducers/adminReducer';
 import authReducer from './reducers/auth';
 
 const rootReducer = combineReducers({
@@ -13,6 +15,8 @@ const rootReducer = combineReducers({
     members: membersReducer,
     setting: settingReducer,
     pengaduan: pengaduanReducer,
+    masterKasus: masterKasus,
+    admin: adminReducer,
     auth: authReducer
 });
 

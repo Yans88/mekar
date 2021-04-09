@@ -473,9 +473,7 @@ class Members extends Component {
                     ></AppModal>
 
                 </div>
-                <div>
-
-                </div>
+                
 
             </div >
         )

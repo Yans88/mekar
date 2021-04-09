@@ -1,9 +1,14 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux';
-import { fetchData } from './pengaduanService';
+import { fetchData, showConfirmOnprogress, confirmSuccess, updStatus, showConfirmCompleted } from './pengaduanService';
 import ReactDatatable from '@ashvin27/react-datatable';
+import { Badge } from 'react-bootstrap';
 import moment from 'moment';
 import "moment/locale/id";
+import { BsArrowRepeat } from "react-icons/bs";
+import AppModal from '../components/modal/MyModal';
+import { AppSwalSuccess } from '../components/modal/SwalSuccess';
+
 
 class Pengaduan extends Component {
     constructor(props) {
@@ -45,6 +50,32 @@ class Pengaduan extends Component {
         this.props.onLoad(this.state);
     }
 
+    confirmProgress = (record) => {
+        this.setState({
+            selected: { ...record, id_operator: this.props.user.id_operator, status: 1 }
+        });
+        this.props.showConfirmProgress(true);
+    }
+
+    confirmComplete = (record) => {
+        this.setState({
+            selected: { ...record, id_operator: this.props.user.id_operator, status: 2 }
+        });
+        this.props.showConfirmComplete(true);
+    }
+
+    handleClose = () => {
+        this.setState({
+            selected: { id_operator: this.props.user.id_operator },
+        });
+        this.props.showConfirmComplete(false);
+        this.props.showConfirmProgress(false);
+    };
+
+    handleProses() {
+        this.props.onProgress(this.state.selected)
+    }
+
 
     render() {
         const { data } = this.props;
@@ -56,6 +87,7 @@ class Pengaduan extends Component {
         bersediaDihubungi[0] = "-";
         bersediaDihubungi[1] = "Ya";
         bersediaDihubungi[2] = "Tidak";
+
         const columns = [
             {
                 key: "no",
@@ -75,7 +107,10 @@ class Pengaduan extends Component {
                 cell: record => {
                     return (<Fragment>
                         {record.nama_pelapor} <br />
-                        <b>Tanggal :</b> {moment(new Date(record.created_at)).format('DD-MM-YYYY HH:mm')}
+                        <b>Tanggal :</b> {moment(new Date(record.created_at)).format('DD-MM-YYYY HH:mm')}<br />
+                        {record.status === 0 ? (<Badge variant="danger">New</Badge>) : ''}
+                        {record.status === 1 ? (<Badge variant="warning">On Progress</Badge>) : ''}
+                        {record.status === 2 ? (<Badge variant="success">Completed</Badge>) : ''}
 
                     </Fragment>)
                 }
@@ -109,7 +144,27 @@ class Pengaduan extends Component {
                 key: "jenis_kasus",
                 text: "Jenis Kasus",
                 align: "center",
-                sortable: true
+                sortable: true,
+                cell: record => {
+                    return (<Fragment>
+                        {record.jenis_kasus} <br />
+                        {record.status === 0 ? (
+                            <button className="btn btn-warning btn-block"
+                                onClick={e => this.confirmProgress(record)}
+                            >
+                                <BsArrowRepeat /> Set on progress
+                            </button>
+                        ) : ''}
+                        {record.status === 1 ? (
+                            <button className="btn btn-success btn-block"
+                                onClick={e => this.confirmComplete(record)}
+                            >
+                                <i className="fa fa-check"></i> Set Completed
+                            </button>
+                        ) : ''}
+
+                    </Fragment>)
+                }
             },
 
         ];
@@ -128,6 +183,7 @@ class Pengaduan extends Component {
                 loading_text: "Please be patient while data loads..."
             }
         }
+        const contentProgress = <div dangerouslySetInnerHTML={{ __html: '<div id="caption" style=padding-bottom:20px;">Apakah anda yakin <br/>memproses data ini ?</div>' }} />;
 
         return (
             <div>
@@ -171,12 +227,40 @@ class Pengaduan extends Component {
                             </div>
                         </div>
                     </section>
-
-
+                    <AppModal
+                        show={this.props.showConfirmOnprogress}
+                        size="sm"
+                        form={contentProgress}
+                        handleClose={this.handleClose.bind(this)}
+                        backdrop="static"
+                        keyboard={false}
+                        title="Confirm"
+                        titleButton="Set Onprogress"
+                        themeButton="warning"
+                        isLoading={this.props.isAddLoading}
+                        formSubmit={this.handleProses.bind(this)}
+                    ></AppModal>
+                    {this.props.showFormSuccess ? (<AppSwalSuccess
+                        show={this.props.showFormSuccess}
+                        title={this.props.contentMsg}
+                        type={this.props.tipeSWAL}
+                        handleClose={this.props.closeSwal}
+                    ></AppSwalSuccess>) : ''}
+                    <AppModal
+                        show={this.props.showConfirmCompletee}
+                        size="sm"
+                        form={contentProgress}
+                        handleClose={this.handleClose.bind(this)}
+                        backdrop="static"
+                        keyboard={false}
+                        title="Confirm"
+                        titleButton="Set Complete"
+                        themeButton="success"
+                        isLoading={this.props.isAddLoading}
+                        formSubmit={this.handleProses.bind(this)}
+                    ></AppModal>
                 </div>
-                <div>
 
-                </div>
 
             </div>
         )
@@ -187,8 +271,14 @@ const mapStateToProps = (state) => {
     return {
         data: state.pengaduan.data || [],
         isLoading: state.pengaduan.isLoading,
+        isAddLoading: state.pengaduan.isAddLoading,
+        showConfirmOnprogress: state.pengaduan.showConfirmOnprogress,
+        showConfirmCompletee: state.pengaduan.showConfirmComplete,
         error: state.pengaduan.error || null,
         totalData: state.pengaduan.totalData || 0,
+        contentMsg: state.pengaduan.contentMsg,
+        showFormSuccess: state.pengaduan.showFormSuccess,
+        tipeSWAL: state.pengaduan.tipeSWAL,
         user: state.auth.currentUser
     }
 }
@@ -198,7 +288,30 @@ const mapDispatchToPros = (dispatch) => {
         onLoad: (queryString) => {
             dispatch(fetchData(queryString));
         },
-
+        showConfirmProgress: (data) => {
+            dispatch(showConfirmOnprogress(data));
+        },
+        showConfirmComplete: (data) => {
+            dispatch(showConfirmCompleted(data));
+        },
+        onProgress: (data) => {
+            dispatch(updStatus(data));
+        },
+        closeSwal: () => {
+            const _data = {};
+            _data['showFormSuccess'] = false;
+            _data['contentMsg'] = null;
+            dispatch(confirmSuccess(_data));
+            const queryString = {
+                sort_order: "DESC",
+                sort_column: "id",                
+                keyword: '',
+                page_number: 1,
+                per_page: 10,
+                cms: 1
+            }
+            dispatch(fetchData(queryString));
+        },
     }
 }
 

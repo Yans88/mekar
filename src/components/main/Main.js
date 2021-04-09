@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
 import Header from './Header'
 import MenuSidebar from './MenuSidebar'
-
 import { connect } from 'react-redux';
 import { getProfileAdmin } from '../login/LoginService';
-
 import PageLoading from './PageLoading';
 
 
@@ -57,7 +54,7 @@ const Main = ({ onUserLoad, children }) => {
     }
 
     let template;
-    const getBasename = path => path.substr(0, path.lastIndexOf('/'));
+
     if (appLoadingState) {
 
         template = (

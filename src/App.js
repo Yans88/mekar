@@ -19,6 +19,8 @@ const Members = React.lazy(() => import('./members/Members'));
 const Satgas = React.lazy(() => import('./members/Satgas'));
 const Setting = React.lazy(() => import('./setting/Setting'));
 const Pengaduan = React.lazy(() => import('./pengaduan/Pengaduan'));
+const MKasus = React.lazy(() => import('./masterKasus/MasterKasus'));
+const Admin = React.lazy(() => import('./admin/Admin'));
 // const getBasename = () => {
 //   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
 // }
@@ -36,14 +38,16 @@ class App extends Component {
           <ProtectedRoute path="/">
             <Main>
               <React.Suspense fallback={<PageLoading />}>
-                
+
                 <Route exact path="/" component={Banner} />
-                
+
                 <Route exact path="/news" component={News} />
                 <Route exact path="/add_news" component={FrmNews} />
                 <Route exact path="/members" component={Members} />
                 <Route exact path="/satgas" component={Satgas} />
                 <Route exact path="/pengaduan" component={Pengaduan} />
+                <Route exact path="/mkasus" component={MKasus} />
+                <Route exact path="/users" component={Admin} />
                 <Route exact path="/setting" component={Setting} />
               </React.Suspense>
             </Main>

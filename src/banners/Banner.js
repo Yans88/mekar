@@ -35,6 +35,7 @@ class Banner extends Component {
 
     editRecord = (record) => {
         this.setState({
+            loadingForm: false,
             errMsg: this.initSelected,
             selected: { ...record, imgUpload: record.img }
         });
@@ -91,6 +92,7 @@ class Banner extends Component {
         const { name, value } = event.target
         var val = value;
         this.setState({ errMsg: this.initSelected });
+        this.props.clearErrProps();
         if (event.target.name === "img") {
             val = event.target.files[0];
             this.setState({ selected: { ...this.state.selected, imgUpload: "", img: "" } });
@@ -220,7 +222,7 @@ class Banner extends Component {
                                     onClick={e => this.editRecord(record)}
                                     style={{ marginRight: '5px' }}>
                                     <i className="fa fa-edit"></i> Edit
-                            </button>
+                                </button>
                                 <button
                                     className="btn btn-danger btn-xs"
                                     onClick={() => this.deleteRecord(record)}>

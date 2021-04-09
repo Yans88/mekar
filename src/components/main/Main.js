@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header'
 import MenuSidebar from './MenuSidebar'
 import { connect } from 'react-redux';
-import { getProfileAdmin } from '../login/LoginService';
+import { GetProfileAdmin } from '../login/LoginService';
 import PageLoading from './PageLoading';
+import { useHistory } from 'react-router';
 
 
-const Main = ({ onUserLoad, children }) => {
-
+const Main = ({ onUserLoad, onUserLogout, children }) => {
     const [appLoadingState, updateAppLoading] = useState(false);
     const [menuCollapse, setMenuCollapse] = useState(false)
     const [menusidebarState, updateMenusidebarState] = useState({
@@ -20,22 +20,32 @@ const Main = ({ onUserLoad, children }) => {
         });
         menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
     };
-
+    const history = useHistory();
     useEffect(() => {
         updateAppLoading(true);
         const fetchProfile = async () => {
             try {
-                const response = await getProfileAdmin();
-                onUserLoad({ ...response });
-                updateAppLoading(false);
+                const response = await GetProfileAdmin();
+
+                if (response.id_operator > 0) {
+                    onUserLoad({ ...response });
+                    updateAppLoading(false);
+                } else {
+                    onUserLogout();
+                    history.push('/login');
+                    updateAppLoading(false);
+                }
+
             } catch (error) {
                 updateAppLoading(false);
             }
         };
         fetchProfile();
         updateAppLoading(false);
+
         return () => { };
-    }, [onUserLoad]);
+    }, [onUserLoad, onUserLogout, history]);
+
 
     document.getElementById('root').classList.remove('login-page');
     document.getElementById('root').classList.remove('hold-transition');
@@ -43,7 +53,6 @@ const Main = ({ onUserLoad, children }) => {
     document.getElementById('root').className += ' sidebar-mini';
 
     if (menusidebarState.isMenuSidebarCollapsed) {
-
         document.getElementById('root').classList.add('sidebar-collapse');
         document.getElementById('root').classList.remove('sidebar-open');
         document.getElementById('root').classList.add('active');
@@ -82,7 +91,8 @@ const Main = ({ onUserLoad, children }) => {
 
 const mapDispatchToProps = (dispatch) => ({
     onUserLoad: (user) =>
-        dispatch({ type: "LOAD_USER", currentUser: user })
+        dispatch({ type: "LOAD_USER", currentUser: user }),
+    onUserLogout: () => dispatch({ type: "LOGOUT_USER" })
 });
 
 export default connect('', mapDispatchToProps)(Main);

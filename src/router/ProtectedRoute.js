@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
+
 const ProtectedRoute = ({ children, isLoggedIn, ...rest }) => {
     return (
         <Route
@@ -19,10 +20,10 @@ const ProtectedRoute = ({ children, isLoggedIn, ...rest }) => {
             }
         />
     );
-    
+
 };
 
-const mapStateToProps = (state) => ({    
+const mapStateToProps = (state) => ({
     isLoggedIn: state.auth.isLoggedIn
 });
 

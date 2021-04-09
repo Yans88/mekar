@@ -29,14 +29,15 @@ export const loginAdmin = async (username, pass) => {
     return token;
 }
 
-export const getProfileAdmin = async () => {
+export const GetProfileAdmin = async () => {
+    //const history = useHistory();
     const token = localStorage.getItem(tokenLogin);
     const dt = CryptoJS.AES.decrypt(token, secretKey);
     const dt_res = dt.toString(CryptoJS.enc.Utf8);
     const _dt = dt_res.split('Þ');
     let tgl_expired = moment(new Date(_dt[2]), 'DD-MM-YYYY HH:mm', true).format();
-    let tgl_now = moment(new Date(), 'DD-MM-YYYY HH:mm', true).format();    
-    var diffMinutes = moment(tgl_now).diff(moment(tgl_expired), 'minutes');    
+    let tgl_now = moment(new Date(), 'DD-MM-YYYY HH:mm', true).format();
+    var diffMinutes = moment(tgl_now).diff(moment(tgl_expired), 'minutes');
     console.log(diffMinutes);
     let dt_user = {
         id_operator: null,
@@ -44,7 +45,8 @@ export const getProfileAdmin = async () => {
         password: null
     };
     if (diffMinutes >= 120) {
-        localStorage.removeItem(tokenLogin);
+        localStorage.removeItem(tokenLogin);        
+        return dt_user;
     } else {
         const param = {
             id_admin: _dt[0],
@@ -67,6 +69,7 @@ export const getProfileAdmin = async () => {
                 localStorage.setItem(tokenLogin, tokeen);
             }
         });
+        return dt_user;
     }
-    return dt_user;
+
 }

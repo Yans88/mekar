@@ -172,7 +172,7 @@ class Setting extends Component {
                                                                 <SunEditor
                                                                     defaultValue={data.contact_us}
                                                                     setContents={data.contact_us}
-                                                                    onChange={this.handleChangeDesk.bind(this)}
+                                                                    onChange={this.handleChangeDesk.bind(this,'contact_us')}
                                                                     setOptions={{
                                                                         placeholder: "Kontak ...",
                                                                         maxHeight: 250,

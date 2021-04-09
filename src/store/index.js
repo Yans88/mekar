@@ -28,5 +28,10 @@ const enhancer = composeEnhancers(
     // other store enhancers if any
 );
 
+/* for development */
 const store = createStore(rootReducer, enhancer);
+
+/* for production */
+//const store = createStore(rootReducer, applyMiddleware(thunk));
+
 export default store;

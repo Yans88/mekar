@@ -451,3 +451,8 @@ padding-bottom: .5em !important;
 .table-hover tbody tr:hover{
 cursor: pointer;
 }
+
+.img-bk{
+  height: 400px !important;
+  width: 470px;
+}

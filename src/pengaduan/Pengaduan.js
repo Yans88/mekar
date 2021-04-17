@@ -2,13 +2,14 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux';
 import { fetchData, showConfirmOnprogress, confirmSuccess, updStatus, showConfirmCompleted } from './pengaduanService';
 import ReactDatatable from '@ashvin27/react-datatable';
-import { Badge } from 'react-bootstrap';
+import { Badge, Figure } from 'react-bootstrap';
 import moment from 'moment';
 import "moment/locale/id";
 import { BsArrowRepeat } from "react-icons/bs";
+import { BiAbacus } from "react-icons/bi"
 import AppModal from '../components/modal/MyModal';
 import { AppSwalSuccess } from '../components/modal/SwalSuccess';
-
+import noImg from '../assets/noPhoto.jpg';
 
 class Pengaduan extends Component {
     constructor(props) {
@@ -22,6 +23,8 @@ class Pengaduan extends Component {
             per_page: 10,
             cms: 1,
             loadingForm: false,
+            showBK: false,
+            bk: null
         }
     }
 
@@ -57,6 +60,22 @@ class Pengaduan extends Component {
         this.props.showConfirmProgress(true);
     }
 
+    showModalBk = (record) => {
+        const bk = <Figure>
+            <Figure.Image
+                className="img-bk"
+                alt=""
+                src={record.photo_bukti_kekerasan ? record.photo_bukti_kekerasan : noImg}
+            />
+        </Figure>;
+        this.setState({
+            showBK: true,
+            bk: bk,
+            selected: { ...record, id_operator: this.props.user.id_operator }
+        });
+
+    }
+
     confirmComplete = (record) => {
         this.setState({
             selected: { ...record, id_operator: this.props.user.id_operator, status: 2 }
@@ -66,6 +85,7 @@ class Pengaduan extends Component {
 
     handleClose = () => {
         this.setState({
+            showBK: false,
             selected: { id_operator: this.props.user.id_operator },
         });
         this.props.showConfirmComplete(false);
@@ -82,7 +102,8 @@ class Pengaduan extends Component {
         const statusNikah = {};
         statusNikah[1] = "Belum menikah";
         statusNikah[2] = "Menikah";
-        statusNikah[3] = "Cerai";
+        statusNikah[3] = "Cerai Hidup";
+        statusNikah[4] = "Cerai Mati";
         const bersediaDihubungi = {};
         bersediaDihubungi[0] = "-";
         bersediaDihubungi[1] = "Ya";
@@ -123,7 +144,8 @@ class Pengaduan extends Component {
                     return (<Fragment>
                         <b>Nama Lengkap :</b> {record.nama_lengkap} <br />
                         <b>Tanggal Lahir :</b> {moment(new Date(record.dob)).format('DD-MM-YYYY')}<br />
-                        <b>Jenis Kelamin :</b> {record.gender === 1 ? "Pria" : "Perempuan"}, {statusNikah[record.status_nikah]}
+                        <b>Jenis Kelamin :</b> {record.gender === 1 ? "Pria" : "Perempuan"}, {statusNikah[record.status_nikah]}<br/>
+                        <b>Sudah mendapatkan bantuan :</b> {bersediaDihubungi[record.sdh_ada_penanganan]}
                     </Fragment>)
                 }
             },
@@ -149,18 +171,46 @@ class Pengaduan extends Component {
                     return (<Fragment>
                         {record.jenis_kasus} <br />
                         {record.status === 0 ? (
-                            <button className="btn btn-warning btn-block"
-                                onClick={e => this.confirmProgress(record)}
-                            >
-                                <BsArrowRepeat /> Set on progress
+                            <Fragment>
+                                <button className="btn btn-info"
+                                    onClick={e => this.showModalBk(record)}
+                                    style={{ marginRight: 3 }}
+                                >
+                                    <BiAbacus /> Bukti Kekerasan
                             </button>
+                                <button className="btn btn-warning"
+                                    onClick={e => this.confirmProgress(record)}
+                                >
+                                    <BsArrowRepeat /> Set onprogress
+                            </button>
+                            </Fragment>
+
                         ) : ''}
                         {record.status === 1 ? (
-                            <button className="btn btn-success btn-block"
-                                onClick={e => this.confirmComplete(record)}
-                            >
-                                <i className="fa fa-check"></i> Set Completed
-                            </button>
+                            <Fragment>
+                                <button className="btn btn-info"
+                                    onClick={e => this.showModalBk(record)}
+                                    style={{ marginRight: 3 }}
+                                >
+                                    <BiAbacus /> Bukti Kekerasan</button>
+                                <button className="btn btn-success"
+                                    onClick={e => this.confirmComplete(record)}
+                                >
+                                    <i className="fa fa-check"></i> Set Completed</button>
+                            </Fragment>
+
+                        ) : ''}
+
+                        {record.status === 2 ? (
+                            <Fragment>
+                                <button className="btn btn-info btn-block"
+                                    onClick={e => this.showModalBk(record)}
+                                    style={{ marginRight: 3 }}
+                                >
+                                    <BiAbacus /> Bukti Kekerasan</button>
+
+                            </Fragment>
+
                         ) : ''}
 
                     </Fragment>)
@@ -259,6 +309,18 @@ class Pengaduan extends Component {
                         isLoading={this.props.isAddLoading}
                         formSubmit={this.handleProses.bind(this)}
                     ></AppModal>
+                    <AppModal
+                        show={this.state.showBK}
+
+                        form={this.state.bk}
+                        handleClose={this.handleClose.bind(this)}
+                        backdrop="static"
+                        keyboard={false}
+                        title="Photo Bukti Kekerasan"
+                        noBtnAction={true}
+                        isLoading={this.props.isAddLoading}
+                        formSubmit={this.handleProses.bind(this)}
+                    ></AppModal>
                 </div>
 
 
@@ -304,7 +366,7 @@ const mapDispatchToPros = (dispatch) => {
             dispatch(confirmSuccess(_data));
             const queryString = {
                 sort_order: "DESC",
-                sort_column: "id",                
+                sort_column: "id",
                 keyword: '',
                 page_number: 1,
                 per_page: 10,

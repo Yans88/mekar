@@ -11,6 +11,7 @@ const AppModal = ({
     formSubmit,
     titleButton,
     themeButton,
+    noBtnAction,
     ...otherProps
 }) => {
     return (
@@ -23,18 +24,23 @@ const AppModal = ({
                 <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>{form}</Modal.Body>
-            <Modal.Footer>
-                <Button theme="info" onClick={handleClose}>
-                    Close
-          </Button>
-                <Button
-                    isLoading={isLoading}
-                    theme={themeButton}
-                    onClick={formSubmit}
-                >
-                    {titleButton ? titleButton : "Yes"}
-                </Button>
-            </Modal.Footer>
+
+            {!noBtnAction ? (
+                <Modal.Footer>
+                    <Button theme="info" onClick={handleClose}>
+                        Close
+                     </Button>
+                    <Button
+                        isLoading={isLoading}
+                        theme={themeButton}
+                        onClick={formSubmit}
+                    >
+                        {titleButton ? titleButton : "Yes"}
+                    </Button>
+                </Modal.Footer>
+            ) : null}
+
+
         </Modal>
     );
 };
